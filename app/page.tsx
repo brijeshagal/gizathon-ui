@@ -3,7 +3,7 @@
 import BabyYoda from "@/components/BabyYoda";
 import MeditatingYoda from "@/public/baby-yoda-illustration.png";
 import NightSky from "@/public/nightsky.png";
-import { setCanBeRugged, setToken } from "@/services/slices/tokenSlice";
+import { setPOI, setPOR, setToken } from "@/services/slices/tokenSlice";
 import { postProcessBinaryPred } from "@/utils/apiData";
 import { sameContractAbiMulticall } from "@/utils/contractInteractions";
 import { getTokens } from "@/utils/getTokens";
@@ -12,7 +12,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { isAddress } from "viem";
 import { useAccount } from "wagmi";
 // https://apiv5.paraswap.io/prices?srcToken=0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE&srcDecimals=18&destToken=0xc2132D05D31c914a87C6611C10748AEb04B58e8F&destDecimals=6&amount=1000000000000000000&side=SELL&network=137&includeDEXS=&userAddress=0x62414d44AaE1aA532630eDa14Df7F449C475759C
 /* 
@@ -31,12 +30,14 @@ export default function Home() {
   const [tokenAddress, setTokenAddress] = useState<string>("");
   const [isPredicting, setIsPredicting] = useState<boolean>(false);
   const [showYoda, setShowYoda] = useState<boolean>(false);
+  const [error, setError] = useState<boolean>(false);
   async function handleTokenAddress(e: { target: { value: string } }) {
     const val = e.target.value;
     setTokenAddress(val);
-    const isAddressCheck = isAddress(val);
   }
   const text = `May the force be with token ${tokenAddress}`.split("");
+  const errorText =
+    `Yoda is experiencing some unforeseen disturbance in the force`.split("");
   useEffect(() => {
     if (isPredicting) {
       const timer = setTimeout(() => setShowYoda(true), text.length * 110);
@@ -92,21 +93,34 @@ export default function Home() {
                     })
                   );
                 } else dispatch(setToken(token));
-                const isRugged = false;
                 // const res = await
-                const res = await axios.post(
-                  "https://endpoint-zenith-773-1-d24306d3-7i3yxzspbq-ew.a.run.app/",
-                  { args: "[89 1 0 40488 0 135]", dry_run: true }
-                );
-                console.log(res.data.result);
-                await new Promise((r) => setTimeout(r, 15000));
-                const finalRes = postProcessBinaryPred(Number(res.data.result));
-                if (finalRes > 40) {
-                  dispatch(setCanBeRugged(true));
-                  router.push("/caution");
-                } else {
-                  dispatch(setCanBeRugged(false));
-                  router.push("/enzyme");
+                try {
+                  await new Promise((r) => setTimeout(r, 15000));
+                  // const res = await axios.post(
+                  //   "https://endpoint-zenith-773-1-d24306d3-7i3yxzspbq-ew.a.run.app/",
+                  //   { args: "[89 1 0 40488 0 135]", dry_run: true }
+                  // );
+                  const res = {
+                    data: {
+                      result: "-701008",
+                      request_id: "b911fada2953446c9dc5ab668131f907",
+                    },
+                  };
+                  const finalRes = postProcessBinaryPred(
+                    Number(res.data.result)
+                  );
+                  console.log({ finalRes });
+                  dispatch(setPOI(res.data.request_id));
+                  dispatch(setPOR(finalRes));
+                  if (finalRes > 40) {
+                    router.push("/caution");
+                  } else {
+                    router.push(`/enzyme`);
+                  }
+                } catch (e) {
+                  console.log({ e });
+                  setShowYoda(false);
+                  setError(true);
                 }
               }
             }}
@@ -124,7 +138,7 @@ export default function Home() {
           </div>
         </div>
       )}
-      {isPredicting && (
+      {!error && isPredicting && (
         <div className="h-full flex items-center justify-center">
           {!showYoda &&
             text.map((letter, index) => {
@@ -139,6 +153,21 @@ export default function Home() {
               );
             })}
           {showYoda && <BabyYoda />}
+        </div>
+      )}
+      {error && (
+        <div className="h-full flex items-center justify-center">
+          {errorText.map((letter, index) => {
+            return (
+              <span
+                key={index}
+                className={`letter ${letter === " " ? "space" : ""}`}
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                {letter}
+              </span>
+            );
+          })}
         </div>
       )}
     </main>

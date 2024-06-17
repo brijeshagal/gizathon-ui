@@ -13,8 +13,9 @@ export type TokenReducer = {
     price: number;
     balance?: number;
   };
-  canBeRugged?: boolean;
+  por: number;
   srcTokenAmount: string;
+  poi: string;
 };
 const initialState: TokenReducer = {
   token: {
@@ -28,6 +29,8 @@ const initialState: TokenReducer = {
     price: 0,
   },
   srcTokenAmount: "",
+  poi: "",
+  por: 100,
 };
 
 export const token = createSlice({
@@ -37,15 +40,18 @@ export const token = createSlice({
     setToken: (state, action) => {
       state.token = action.payload;
     },
-    setCanBeRugged: (state, action) => {
-      state.canBeRugged = action.payload;
+    setPOR: (state, action) => {
+      state.por = action.payload;
     },
     setSrcTokenAmount: (state, action) => {
       state.srcTokenAmount = action.payload;
     },
+    setPOI: (state, action) => {
+      state.poi = action.payload;
+    },
   },
 });
 
-export const { setToken, setCanBeRugged, setSrcTokenAmount } = token.actions;
+export const { setToken, setPOI, setPOR, setSrcTokenAmount } = token.actions;
 
 export default token.reducer;

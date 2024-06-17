@@ -23,7 +23,7 @@ export default function Enzyme() {
   const [showTokensList, setShowTokensList] = useState(false);
   const [destTokenAmount, setDestTokenAmount] = useState<bigint>(BigInt(0));
   const [loadingBal, setLoadingBal] = useState(false);
-  const { token, srcTokenAmount } = useSelector(
+  const { token, srcTokenAmount, poi, por } = useSelector(
     (state: RootState) => state.token
   );
   const [comptrollerProxyAddress, setComptrollerProxyAddress] =
@@ -78,24 +78,6 @@ export default function Enzyme() {
           chainId,
           address,
         });
-        const paramsData = await getParams({
-          chainId,
-          params: {
-            srcToken: selectedToken.contract,
-            srcAmount: parseUnits(
-              srcTokenAmount,
-              selectedToken.decimals
-            ).toString(),
-            destToken: token.contract,
-            destAmount: data.priceRoute.destAmount,
-            userAddress: address,
-            partner: "enzyme",
-            txOrigin: address,
-            priceRoute: data.priceRoute,
-          },
-        });
-        console.log({ paramsData });
-
         setDestTokenAmount(BigInt(data.priceRoute.destAmount));
       }
     }
@@ -117,6 +99,14 @@ export default function Enzyme() {
         alt=""
       />
       <div className="mx-auto w-fit">
+        <div
+          className={
+            "w-fit mx-auto mb-2" +
+            (por < 40 ? " text-green-600" : " text-red-600")
+          }
+        >
+          Probability of getting rugged is: {por}%
+        </div>
         <label className="w-fit mx-auto border flex items-center justify-center rounded-xl p-2">
           <input
             type="text"
@@ -137,7 +127,7 @@ export default function Enzyme() {
         </label>
       </div>
       <div>
-        <div className="w-screen mt-28 flex flex-col justify-center items-center gap-6">
+        <div className="w-screen mt-12 flex flex-col justify-center items-center gap-4">
           <SelectedToken
             loadingBal={loadingBal}
             setShowTokensList={setShowTokensList}
@@ -184,6 +174,30 @@ export default function Enzyme() {
           >
             TRADE
           </button>
+        </div>
+      </div>
+      <div className="mb-5 flex flex-col mt-10 justify-center gap-3 items-center">
+        <div className="w-fit text-[30px] underline underline-offset-8 decoration-gray-300">
+          Self Verify your Proof of Inference using giza-sdk
+        </div>
+        <div className="flex flex-col gap-3 items-center justify-center">
+          <div>1. First install the giza-sdk</div>
+          <div className="w-[500px] bg-gray-900 p-3 rounded-xl ">
+            pip install giza-sdk
+          </div>
+          <div>2. Now run the following to get proof-id</div>
+          <div className="w-[500px] p-3 rounded-xl bg-gray-900">
+            giza endpoints get-proof endpoint-id
+            https://endpoint-zenith-773-1-d24306d3-7i3yxzspbq-ew.a.run.app/
+            --proof-id {poi}
+          </div>
+          <div>
+            3. Last step to verify that we ran the model to give you this
+            prediction
+          </div>
+          <div className="w-[500px] p-3 rounded-xl bg-gray-900">
+            giza verify --proof-id {"<PROOF-ID-FROM-LAST-COMMAND>"}
+          </div>
         </div>
       </div>
     </main>
