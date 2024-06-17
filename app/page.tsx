@@ -96,16 +96,16 @@ export default function Home() {
                 // const res = await
                 try {
                   await new Promise((r) => setTimeout(r, 15000));
-                  // const res = await axios.post(
-                  //   "https://endpoint-zenith-773-1-d24306d3-7i3yxzspbq-ew.a.run.app/",
-                  //   { args: "[89 1 0 40488 0 135]", dry_run: true }
-                  // );
-                  const res = {
-                    data: {
-                      result: "-701008",
-                      request_id: "b911fada2953446c9dc5ab668131f907",
-                    },
-                  };
+                  const res = await axios.post(
+                    "https://endpoint-zenith-773-1-d24306d3-7i3yxzspbq-ew.a.run.app/",
+                    { args: "[89 1 0 40488 0 135]", dry_run: true }
+                  );
+                  // const res = {
+                  //   data: {
+                  //     result: "-701008",
+                  //     request_id: "b911fada2953446c9dc5ab668131f907",
+                  //   },
+                  // };
                   const finalRes = postProcessBinaryPred(
                     Number(res.data.result)
                   );
